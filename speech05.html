@@ -1,0 +1,147 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>オウム返し</title>
+  </head>
+  <style>
+    body {
+      background-color: #fad2d0;
+    }
+    .center-box {
+      text-align: center;
+    }
+    .large-text {
+      font-size: 4rem;
+    }
+  </style>
+  <body>
+    <center>
+      <h1>世界の「ありがとう」に挑戦しよう！</h1>
+      <p>うまく発音すると、どこの国の「ありがとう」か教えてくれます😊</p>
+      <h2>
+        「ありがとう」「サンキュー」「カムサハムニダ 」
+        「メルシーボークー」「ダンケシェーン」<br />
+        「グラーツィエ」「グラシァス」 「テシェキュルエデリム」
+        「マハロ」「スパシィーバ」 「タック」
+      </h2>
+    </center>
+
+    <p class="center-box"><img id="mic" src="micoff.svg" /></p>
+    <div id="result-div" class="large-text"></div>
+    <script>
+      const resultDiv = document.querySelector("#result-div");
+      const micDiv = document.querySelector("#mic");
+      let speakingtime = 0;
+
+      // 音声認識機能(Chrome)
+      let rec = new webkitSpeechRecognition();
+      let stopped = true;
+      rec.continuous = true;
+      rec.interimResults = false;
+      rec.lang = "ja-JP";
+
+      micDiv.onclick = function () {
+        if (stopped == true) {
+          stopped = false;
+          resultDiv.innerHTML = "";
+          rec.start();
+        } else {
+          stopped = true;
+          rec.stop();
+        }
+      };
+
+      rec.onstart = function () {
+        console.log("on start");
+        micDiv.setAttribute("src", "micon.svg");
+        speakingtime = 0;
+      };
+
+      rec.onend = function () {
+        console.log("on end");
+        micDiv.setAttribute("src", "micoff.svg");
+        if (stopped == false) {
+          setTimeout(function () {
+            rec.start();
+          }, speakingtime);
+        }
+      };
+
+      rec.onresult = function (e) {
+        rec.stop();
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) {
+            console.log(e);
+            let text = e.results[i][0].transcript;
+            resultDiv.innerHTML = text;
+            console.log(text);
+            let reg = /ありがとう/;
+            let reg1 = /サンキュー/;
+            let reg2 = /カムサハムニダ/;
+            let reg3 = /メルシーボークー/;
+            let reg4 = /ダンケシェーン/;
+            let reg5 = /グラーツィエ/;
+            let reg6 = /グラシァス/;
+            let reg7 = /テシェキュルエデリム/;
+            let reg8 = /マハロ/;
+            let reg9 = /スパシィーバ/;
+            let reg10 = /タック/;
+
+            if (reg.test(text)) {
+              text = "ありがとう、日本語です";
+            } else if (reg1.test(text)) {
+              text = "サンキュー、英語です";
+            } else if (reg2.test(text)) {
+              text = "カムサハムニダ、韓国語です";
+            } else if (reg3.test(text)) {
+              text = "メルスィーボークー、フランス語です";
+            } else if (reg4.test(text)) {
+              text = "ダンケシェーン、ドイツ語です";
+            } else if (reg5.test(text)) {
+              text = "グラーツィエ、イタリア語です";
+            } else if (reg6.test(text)) {
+              text = "グラシァス、スペイン語です";
+            } else if (reg7.test(text)) {
+              text = "テシェキュルエデリム、トルコ語です";
+            } else if (reg8.test(text)) {
+              text = "マハロ、ハワイ語です";
+            } else if (reg9.test(text)) {
+              text = "スパシィーバ、ロシア語です";
+            } else if (reg10.test(text)) {
+              text = "タック、デンマーク語、ノルウェー語、スウェーデン語です";
+            } else {
+              text = "もう一度、発音してみましょう";
+            }
+            speakingtime = text.length * 200;
+            console.log("estimate:", speakingtime, "ms");
+            speak(text);
+          }
+        }
+      };
+
+      // 発話機能をインスタンス化
+      let msg = new SpeechSynthesisUtterance();
+      //let voices = window.speechSynthesis.getVoices();
+
+      function speak(text) {
+        // 以下オプション設定（日本語は効かないもよう。。）
+        //msg.voice = voices[7]; // 7:Google 日本人 ja-JP ※他は英語のみ
+        msg.volume = 1.0; // 音量 min 0 ~ max 1
+        msg.rate = 1.0; // 速度 min 0 ~ max 10
+        msg.pitch = 1.0; // 音程 min 0 ~ max 2
+
+        msg.text = text; // 喋る内容
+        msg.lang = "ja-JP"; // en-US or ja-JP
+        // msg.lang = 'en-US'; // en-US or ja-JP
+
+        // 発話実行
+        speechSynthesis.speak(msg);
+      }
+
+      // 終了時の処理
+      msg.onend = function (event) {
+        console.log("喋った時間：" + event.elapsedTime + "ms");
+      };
+    </script>
+  </body>
+</html>
